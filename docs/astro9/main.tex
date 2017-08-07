@@ -1,0 +1,267 @@
+\documentclass{article}
+
+% if you need to pass options to natbib, use, e.g.:
+% \PassOptionsToPackage{numbers, compress}{natbib}
+% before loading nips_2016
+%
+% to avoid loading the natbib package, add option nonatbib:
+% \usepackage[nonatbib]{nips_2016}
+
+\usepackage[nonatbib, final]{nips_2017}
+
+% to compile a camera-ready version, dd the [final] option, e.g.:
+% \usepackage[final]{nips_2016}
+
+\def\layersep{1.8cm}
+\usepackage[utf8]{inputenc} % allow utf-8 input
+\usepackage[T1]{fontenc}    % use 8-bit T1 fonts
+\usepackage{booktabs}       % professional-quality tables
+\usepackage{amsfonts}       % blackboard math symbols
+\usepackage{nicefrac}       % compact symbols for 1/2, etc.
+\usepackage{microtype}      % microtypography
+\usepackage{mathtools}
+\usepackage[compact]{titlesec}  
+%%%%%%%%%%%%%%
+% MATH
+%%%%%%%%%%%%%%%
+\usepackage{listings}
+\usepackage{amsthm}
+\usepackage{amssymb}
+\usepackage{framed} 
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{relsize}
+\usepackage{tikz}
+\usepackage{xr}
+% use Times
+\usepackage{times}
+% For figures
+\usepackage{graphicx} % more modern
+%\usepackage{epsfig} % less modern
+\usepackage{subfigure} 
+\usepackage{wrapfig}
+% For citations
+\usepackage[numbers]{natbib}
+
+% For algorithms
+\usepackage{algorithm}
+\usepackage{algorithmic}
+\usepackage{tikz-cd}
+
+
+\newcommand{\BlackBox}{\rule{1.5ex}{1.5ex}}  % end of proof 
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{example}[theorem]{Example}
+\newtheorem{lemma}[theorem]{Lemma} 
+\newtheorem{proposition}[theorem]{Proposition} 
+\newtheorem{remark}[theorem]{Remark}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{conjecture}[theorem]{Conjecture}
+\newtheorem{axiom}[theorem]{Axiom}
+
+\numberwithin{theorem}{section}
+\numberwithin{equation}{section}
+
+\newcommand{\Sum}{\mathlarger{\mathlarger{\sum}}}
+
+\newcommand{\rotB}{\scalebox{-1}[1]{B}}
+
+
+\usetikzlibrary{backgrounds}
+\usetikzlibrary{calc}
+\usepackage{soul}
+\usepackage{stackrel}
+
+\usepackage{relsize}
+
+\tikzset{fontscale/.style = {font=\relsize{#1}}
+    }
+
+
+\def\reals{{\mathbb R}}
+\def\torus{{\mathbb T}}
+\def\integers{{\mathbb Z}}
+\def\rationals{{\mathbb Q}}
+\def\naturals{{\mathbb N}}
+\def\complex{{\mathbb C}\/}
+\def\distance{\operatorname{distance}\,}
+\def\support{\operatorname{support}\,}
+\def\dist{\operatorname{dist}\,}
+\def\Span{\operatorname{span}\,}
+\def\degree{\operatorname{degree}\,}
+\def\kernel{\operatorname{kernel}\,}
+\def\dim{\operatorname{dim}\,}
+\def\codim{\operatorname{codim}}
+\def\trace{\operatorname{trace\,}}
+\def\dimension{\operatorname{dimension}\,}
+\def\codimension{\operatorname{codimension}\,}
+\def\nullspace{\scriptk}
+\def\kernel{\operatorname{Ker}}
+\def\p{\partial}
+\def\Re{\operatorname{Re\,} }
+\def\Im{\operatorname{Im\,} }	
+\def\ov{\overline}
+\def\eps{\varepsilon}
+\def\lt{L^2}
+\def\curl{\operatorname{curl}}
+\def\divergence{\operatorname{div}}
+\newcommand{\norm}[1]{ \|  #1 \|}
+\def\expect{\mathbb E}
+\def\bull{$\bullet$\ }
+\def\det{\operatorname{det}}
+\def\Det{\operatorname{Det}}
+\def\rank{\mathbf r}
+\def\diameter{\operatorname{diameter}}
+
+\def\t2{\tfrac12}
+
+\newcommand{\abr}[1]{ \langle  #1 \rangle}
+
+\def\newbull{\medskip\noindent $\bullet$\ }
+\def\field{{\mathbb F}}
+\def\cc{C_c}
+
+
+
+% \renewcommand\forall{\ \forall\,}
+
+% \newcommand{\Norm}[1]{ \left\|  #1 \right\| }
+\newcommand{\Norm}[1]{ \Big\|  #1 \Big\| }
+\newcommand{\set}[1]{ \left\{ #1 \right\} }
+%\newcommand{\ifof}{\Leftrightarrow}
+\def\one{{\mathbf 1}}
+\newcommand{\modulo}[2]{[#1]_{#2}}
+
+\def\bd{\operatorname{bd}\,}
+\def\cl{\text{cl}}
+\def\nobull{\noindent$\bullet$\ }
+
+\def\scriptf{{\mathcal F}}
+\def\scriptq{{\mathcal Q}}
+\def\scriptg{{\mathcal G}}
+\def\scriptm{{\mathcal M}}
+\def\scriptb{{\mathcal B}}
+\def\scriptc{{\mathcal C}}
+\def\scriptt{{\mathcal T}}
+\def\scripti{{\mathcal I}}
+\def\scripte{{\mathcal E}}
+\def\scriptv{{\mathcal V}}
+\def\scriptw{{\mathcal W}}
+\def\scriptu{{\mathcal U}}
+\def\scriptS{{\mathcal S}}
+\def\scripta{{\mathcal A}}
+\def\scriptr{{\mathcal R}}
+\def\scripto{{\mathcal O}}
+\def\scripth{{\mathcal H}}
+\def\scriptd{{\mathcal D}}
+\def\scriptl{{\mathcal L}}
+\def\scriptn{{\mathcal N}}
+\def\scriptp{{\mathcal P}}
+\def\scriptk{{\mathcal K}}
+\def\scriptP{{\mathcal P}}
+\def\scriptj{{\mathcal J}}
+\def\scriptz{{\mathcal Z}}
+\def\scripts{{\mathcal S}}
+\def\scriptx{{\mathcal X}}
+\def\scripty{{\mathcal Y}}
+\def\frakv{{\mathfrak V}}
+\def\frakG{{\mathfrak G}}
+\def\aff{\operatorname{Aff}}
+\def\frakB{{\mathfrak B}}
+\def\frakC{{\mathfrak C}}
+
+\def\symdif{\,\Delta\,}
+\def\mustar{\mu^*}
+\def\muplus{\mu^+}
+
+
+\title{NN-body: Approximating Solutions to the $n$-body Problem using Neural Networks}
+
+% The \author macro works with any number of authors. There are two
+% commands used to separate the names and addresses of multiple
+% authors: \And and \AND.
+%
+% Using \And between authors leaves it to LaTeX to determine where to
+% break the lines. Using \AND forces a line break at that point. So,
+% if LaTeX puts 3 of 4 authors names on the first line, and the last
+% on the second line, try using \AND instead of \And before the third
+% author name.
+
+\author{
+  William H.~Guss \\
+  Unviersity of California, Berkeley\\
+  Berkeley, CA 94720 \\
+  \texttt{wguss@ml.berkeley.edu} 
+}
+
+\begin{document}
+% \nipsfinalcopy is no longer used
+
+\maketitle
+
+\begin{abstract} 
+The $n$-body problem, although simple in its formulation, is one of the most classic and unsolved problems in Newtonian mechanics. In this paper, we work towards a deeper understanding of the underlying dynamics of solutions by utilizing neural networks to approximate target states from initial conditions. Unlike previous numerical methods, neural networks are universal approximators which can capture and learn dynamics across variable timescales, without solving for intermediate solutions. We take advantage of one-shot prediction in order to analyze eigen-states \textbf{TODO: Finish abstract}
+\end{abstract} 
+\section{Introduction}
+
+
+\section{Background}
+
+
+\textbf{The $n$-body problem. } Formally, the $n$-body problem considers the graviational dynamics of $n$ different point masses in $\mathbb{R}^3$. Let $m_i$, $p_i$, and $v_i$ denote the mass, position, and velocity of the $i$th point mass respectively. For every mass pair $i \neq j$, the force induced on mass $m_i$ by mass $m_j$ is given by Newton's law of gravitation
+\begin{equation}\label{eq:forceindividual}
+	F_{ij} = G m_i m_j \frac{p_j - p_i}{\left\|p_j - p_i\right\|^3}
+\end{equation}
+where $G$ is the graviational constant. Intuitively, $F_{ij}$ describes a force in the direction of $p_j$ (relative to $p_i$) whose magnitude is dependent on both the distance and combined mass potential of the two point-masses.
+
+Integrating all force data from \eqref{eq:forceindividual} we yield that the acceleration applied to mass $m_i$ is
+\begin{equation}
+	\frac{d^2p_i}{dt^2}= G \sum_{\substack{k=1 \\ k\neq j}}^n  \frac{ m_j(p_j - p_i)}{\left\|p_j - p_i\right\|^3},
+\end{equation}
+where the acceleration is yielded by means of Newton's first law. In vector form,
+\begin{equation}\label{eq:nbodyvec}
+\begin{aligned}
+	\frac{d^2p}{dt^2} &= G \left({\left\langle \left(p^{(i)} - p_i\right)\odot \frac{1}{\|p - p_i\|^3} \mathrel{}\middle|\mathrel{} m^{(i)} \right\rangle}\right)_{i=1}^n \\
+	&= G  \tilde{M} \cdot \left(\left(p^{(i)} - p_i\right)\odot \frac{1}{\|p - p_i\|^3} \right)_{i=1}^n =: G \tilde{M}  \Pi(t)
+\end{aligned}
+\end{equation}
+where $m^{(i)}, p^{(i)}$ are the full mass and position vectors with $i$th element removed, and $\tilde{M}$ is a matrix whose $i$th row is $m^{(i)}$.
+
+In its full statement, the $n$-body problem can be stated as follows: given arbitrary initial position and velocity vectors, $p_0$ and $v_0$, does there exist an analytical solution $\scriptp$ to $\frac{d^2p}{dt^2} = G \tilde{M}  \Pi(t)$?
+
+
+\section{Learning the $n$-body problem}
+As of yet, there is no analytical solution to the arbitrary $n$-body problem, which given its simple formulation, raises questions as to our understanding of the complex dynamical patterns which emerge therefrom. Although numerical methods for solving \eqref{eq:nbodyvec} are sufficiently powerful for visualizing solutions, they are limited in their capacity for analysis; that is, on face value, such methods attempt to yield the temporally global solution by repeatedly and accurately modeling the local one. 
+
+ In this paper, we approach numerical approximation from the alternative perspective of machine learning. Instead of iteratively arriving at a global solution, we will \emph{learn} the map $\pi: (p_0, v_0, t) \mapsto (p(t), v(t))$ using a family of \emph{hypothesis} function approximators whose analytical forms are condusive to statistical and spectral analysis globally in time.  Formally we will solve the following optimization problem, usually called a \emph{classification problem}.
+
+ Let $\scriptd$ be the distribution induced by the jointly uniform random variables $P_0, V_0, T_0$. Given some hypothesis class $\scripth = \{h_\theta: \mathbb{R}^{3n} \times \mathbb{R}^{3n} \times \mathbb{R}
+\times  [t_0, \infty)  \to  \mathbb{R}^{3n} \times \mathbb{R}^{3n} \}$ parameterized smoothly by $\theta \in \Theta,$ we wish to find $\theta^*$ such that
+ \begin{equation}
+ 	\theta^* = \arg\min_{\theta \in \Theta} \mathop{\mathbb{E}}_{(p_0, v_0, t) \sim \scriptd}\scriptl \Big( \pi(p_0,v_0,t), h_\theta(p_0, v_0, t)\Big),
+ \end{equation}
+ where $\scriptl$ is some monotonic function called a \emph{loss}. Usually we take $ \scriptl$ to be the $\ell_2$ norm.
+ For intuition, note that if $h_{\theta^{*}} = \pi \in \scripth_\theta$ then the minimal expectation above is zero.
+
+ In the foregoing regime, if we find a hypothesis class with which is sufficiently expressive, then the solution $h_{\theta_*}$ will approximate solutions to the $n$-body problem with arbitrary accuracy. It remains, however, to find such a hypothesis class $\scripth$ which also has the desired interpritability conditions and can yield novel statistical insights into the $n$-body problem. Luckily, artifical neural networks come close.
+
+ \subsection{Deep Learning}
+
+ For the purpose of this work, define the hypothesis class of all $\ell$-layer neural networks, $\scriptn_\ell$ as 
+
+
+% \input{sections/introduction}
+% \input{sections/background}
+% \input{sections/deep_funk_machines}
+% \input{sections/topology}
+% \input{sections/experiments}
+% \input{sections/conclusion}
+
+% \bibliographystyle{plainnatpllain}
+% \bibliography{dfm}
+% \newpage
+% \input{sections/appendix}
+
+\end{document}
