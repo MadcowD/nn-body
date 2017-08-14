@@ -15,7 +15,7 @@ from nnbody import NNBody
 BATCH_SIZE=64
 BOOTSTRAP_SIZE=5000
 H = 0.01 # RK4 step size
-TMAX = 0.1 # Time max
+TMAX = 0.2 # Time max
 
 def get_options():
     """
@@ -77,7 +77,7 @@ def build_data_generator(sess, n):
 	A method for generating data given a threading coordinator.
 	"""
 
-	with tf.device('/cpu:0'):
+	with tf.device('/gpu:1'):
 		with tf.variable_scope("data_generator"):
 				with tf.variable_scope("RK4"):
 
@@ -149,7 +149,8 @@ def main(opts):
 	num_bodies = opts.N
 
 	# Set up tensorflow session
-	sess= tf.InteractiveSession()
+	config = tf.ConfigProto(allow_soft_placement = True)
+	sess = tf.InteractiveSession(config = config)
 
 	print("Hi!")
 

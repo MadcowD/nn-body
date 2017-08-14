@@ -41,7 +41,7 @@ class NNBody:
         self.sess = sess
         self.n = n
         scope_name = "NNBody"
-        with tf.device('/cpu:0'):
+        with tf.device('/gpu:0'):
             with tf.variable_scope(scope_name):
                 with tf.variable_scope("data_pipeline"):
                     data_pairs  = training_data

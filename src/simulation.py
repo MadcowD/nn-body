@@ -47,7 +47,7 @@ def RK4(f, y0, tmax, h=0.1):
     with tf.variable_scope("RK4"):
         y = [y0]
         tint = np.linspace(h, tmax, tmax/h)
-        for tn in tint[1:]:
+        for tn in tqdm.tqdm(tint[1:]):
             with tf.variable_scope("step_{}".format(tn)):
                 yn = y[-1]
                 
