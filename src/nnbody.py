@@ -33,7 +33,7 @@ class NNBody:
     """
     The nnbody model.
     """
-    def __init__(self, sess, inputs, data_queue, n):
+    def __init__(self, sess, training_data, data_queue, n):
         """
         Initialzies the model with a SESS,
         a DATA_QUEUE, and a number of bodys N.
@@ -41,10 +41,10 @@ class NNBody:
         self.sess = sess
         self.n = n
         scope_name = "NNBody"
-        with tf.device('/gpu:0'):
+        with tf.device('/cpu:0'):
             with tf.variable_scope(scope_name):
                 with tf.variable_scope("data_pipeline"):
-                    data_pairs  = inputs
+                    data_pairs  = training_data
                     inputs = data_pairs[0]
                     desireds = data_pairs[1]
                 
@@ -52,7 +52,7 @@ class NNBody:
                 self.training_op = self.create_training_method(self.output, desireds)
 
                 with tf.variable_scope("requeue"):
-                    self.requeue_op = data_queue.enqueue_many(inputs)
+                    self.requeue_op = data_queue.enqueue_many(training_data)
 
                 with tf.variable_scope("persitence_initialization"):
                     vars_in_scope = tf.get_collection(
@@ -87,6 +87,7 @@ class NNBody:
             num_outputs = self.n*2*2 # {P, V} (in R^2)
 
             head = fc_layer(inputs, 400)
+            head = fc_layer(inputs, 300)
             head = fc_layer(inputs, 300)
             head = fc_layer(inputs, 300)
             head = fc_layer(inputs, num_outputs, activation=tf.identity)

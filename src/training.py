@@ -6,13 +6,16 @@ import tensorflow as tf
 import numpy as np
 import argparse
 import threading
+import math
+import tqdm
+
 from simulation import nbody, RK4
 from nnbody import NNBody
 
-BATCH_SIZE=32
+BATCH_SIZE=64
 BOOTSTRAP_SIZE=5000
 H = 0.01 # RK4 step size
-TMAX = 0.02 # Time max
+TMAX = 0.1 # Time max
 
 def get_options():
     """
@@ -74,7 +77,7 @@ def build_data_generator(sess, n):
 	A method for generating data given a threading coordinator.
 	"""
 
-	with tf.device('/gpu:1'):
+	with tf.device('/cpu:0'):
 		with tf.variable_scope("data_generator"):
 				with tf.variable_scope("RK4"):
 
@@ -92,11 +95,11 @@ def build_data_generator(sess, n):
 
 
 
-def run_data_generator(sess,  coord, rk4in, rk4out, data_feed):
+def run_data_generator(sess,  coord, rk4in, rk4out, data_feed, n):
 	"""
 	Runs the data generator as a thread 
 	"""
-	(PV, M, G), (t, pv), (tpv0, pvfinal, enqueue ) = rk4in, rk4out, data_feed
+	(PV, M, G), (tint, pv), (tpv0, pvfinal, enqueue ) = rk4in, rk4out, data_feed
 	# Fix the mass from the beginning of training.
 	mass = np.random.random(n)*10000
 	while not coord.should_stop():
@@ -107,16 +110,18 @@ def run_data_generator(sess,  coord, rk4in, rk4out, data_feed):
 		# Get Simulation data
 		pv_hist = [P0V0]
 		tt = 20
-		for t in tqdm.tqdm(range(tt)):
+		for t in (range(tt)):
 		    pv_hist += sess.run(pv[1:], {PV: pv_hist[-1], M: mass, G:0.000001})
 		pv_hist= np.array(pv_hist)
 
+		tint = np.linspace(0, TMAX*tt, math.ceil(tt*TMAX/H))
+
 		# Eqnueue it.
-		flattened_versions = [[t[i], _flatten(pvinst)] for i, pvinst in enumerate(pv)]
+		flattened_versions = [[tint[i], _flatten(pvinst)] for i, pvinst in enumerate(pv_hist)]
 		for i, (t, flatpv) in enumerate(flattened_versions):
 			for j, (tend, targetpv) in enumerate(flattened_versions[i:]):
 				delta_t = tend- t
-				inputs, desireds = np.concat([np.array([delta_t]), flatpv]), targetpv
+				inputs, desireds = np.concatenate([np.array([delta_t]), flatpv]), targetpv
 				sess.run(enqueue, {tpv0: inputs, pvfinal: desireds})
 
 
@@ -131,11 +136,13 @@ def train(sess, coord, max_iters, model, model_path):
 
 		# Train the model.
 		training_ops, loss = model.get_training_ops(), model.loss
-		_, computed_loss = sess.run(loss)
+		_, computed_loss = sess.run([training_ops, loss])
 
-		print(it, loss)
+		if it% 100 == 0: print(it, computed_loss)
 		if it % 10000 == 0:
 			model.save(model_path)
+
+	coord.request_stop()
 
 
 def main(opts):
@@ -168,7 +175,7 @@ def main(opts):
 	threads = [
 		threading.Thread(
 			target=run_data_generator,
-			args=(sess, coord, rk4in, rk4out, data_feed)),
+			args=(sess, coord, rk4in, rk4out, data_feed, num_bodies)),
 		threading.Thread(
 			target=train,
 			args=(sess, coord, opts.max_iters, model, opts.model_path))]

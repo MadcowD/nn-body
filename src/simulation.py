@@ -46,8 +46,8 @@ def RK4(f, y0, tmax, h=0.1):
     Implements the Rk4 method."""
     with tf.variable_scope("RK4"):
         y = [y0]
-        tint = np.linspace(0, tmax, tmax/h)
-        for tn in tqdm.tqdm(tint[1:]):
+        tint = np.linspace(h, tmax, tmax/h)
+        for tn in tint[1:]:
             with tf.variable_scope("step_{}".format(tn)):
                 yn = y[-1]
                 
@@ -61,4 +61,5 @@ def RK4(f, y0, tmax, h=0.1):
                     k4 = f(tn +h, yn + h*k3)
                 
                 y.append(yn + h/6*(k1+2*k2+2*k3+k4))
+
     return tint, y
