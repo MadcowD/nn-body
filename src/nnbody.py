@@ -16,7 +16,18 @@ def fc_layer(input_, num_neurons, activation=tf.nn.relu, name="fc"):
 
     return  activation(net)
 
-
+def variable_summaries(var, name):
+    """Attach a lot of summaries to a Tensor."""
+    with tf.name_scope('summaries'):
+        mean = tf.reduce_mean(var)
+        tf.summary.scalar('mean/' + name, mean)
+        with tf.name_scope('stddev'):
+            stddev = tf.sqrt(tf.reduce_mean(tf.square(var - mean)))
+        tf.summary.scalar('stddev/' + name, stddev)
+        tf.summary.scalar('max/' + name, tf.reduce_max(var))
+        tf.summary.scalar('min/' + name, tf.reduce_min(var))
+        tf.summary.histogram(name, var)
+    pass
     
 def variable(shape, f, name="variable"):
     """
@@ -41,7 +52,7 @@ class NNBody:
         self.sess = sess
         self.n = n
         scope_name = "NNBody"
-        with tf.device('/cpu:0'):
+        with tf.device('/gpu:0'):
             with tf.variable_scope(scope_name):
                 with tf.variable_scope("data_pipeline"):
                     data_pairs  = training_data
@@ -59,6 +70,9 @@ class NNBody:
                         tf.GraphKeys.VARIABLES, scope=scope_name)
                     self.saver = tf.train.Saver(vars_in_scope)
                     self.init = tf.variables_initializer(vars_in_scope)
+
+            with tf.variable_scope('summaries'):
+                self.merged = tf.summary.merge_all()
 
 
     def initialize(self, model_path, restore=False):
@@ -106,7 +120,8 @@ class NNBody:
             diff = outputs - desireds
             loss = tf.reduce_mean(tf.nn.l2_loss(diff)) 
             # todo add l2 loss
-            self.loss =loss
+            self.loss = loss
+            variable_summaries(loss)
             return tf.train.AdamOptimizer(LEARNING_RATE).minimize(loss)
 
 

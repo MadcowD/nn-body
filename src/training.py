@@ -8,6 +8,7 @@ import argparse
 import threading
 import math
 import tqdm
+import os
 
 from simulation import nbody, RK4
 from nnbody import NNBody
@@ -16,6 +17,11 @@ BATCH_SIZE=64
 BOOTSTRAP_SIZE=40000
 H = 0.01 # RK4 step size
 TMAX = 0.2 # Time max
+
+def ensure_dir(file_path):
+    directory = os.path.dirname(file_path)
+    if not os.path.exists(directory):
+        os.makedirs(directory)
 
 def get_options():
     """
@@ -130,13 +136,19 @@ def train(sess, coord, max_iters, model, model_path):
     """
     Trains the model untill error is low enough.
     """
+    tboard_dir = os.path.join(model_path, 'logs'/)
+    ensure_dir(tboard_dir)
+    train_writer = tf.summary.FileWriter(tboard_dir,sess.graph)
     for it in range(max_iters):
         if coord.should_stop():
             break
 
         # Train the model.
         training_ops, loss = model.get_training_ops(), model.loss
-        _, computed_loss = sess.run([training_ops, loss])
+        _, summaries, computed_loss = sess.run(
+            [training_ops, model.merged, loss])
+
+        train_writer.add_summary(summary, it)
 
         if it% 100 == 0: print(it, computed_loss)
         if it % 10000 == 0:
@@ -153,6 +165,7 @@ def main(opts):
     sess = tf.InteractiveSession(config = config)
 
     print("Hi!")
+    ensure_dir(opts.model_path)
 
     # Make the data pipeline.
     print("Building data queue")
