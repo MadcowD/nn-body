@@ -2,6 +2,7 @@
 nnbody.py -- The main model definition for the nnbody solver,.
 """
 import tensorflow as tf
+import os
 import math
 LEARNING_RATE=1e-2
 TRACK_VARS = False
@@ -61,12 +62,14 @@ class NNBody:
 
 
     def initialize(self, model_path, restore=False):
+        tm = os.path.join(model_path, "model.cpkt")
         self.sess.run(self.init)
         if restore:
-            self.saver.restore(self.sess, model_path)
+            self.saver.restore(self.sess, tm)
 
     def save(self, model_path):
-        self.saver.save(self.sess, model_path)
+        tm = os.path.join(model_path, "model.cpkt")
+        self.saver.save(self.sess, tm )
 
     def get_training_ops(self):
         """
