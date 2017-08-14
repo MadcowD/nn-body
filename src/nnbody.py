@@ -4,7 +4,7 @@ nnbody.py -- The main model definition for the nnbody solver,.
 import tensorflow as tf
 import os
 import math
-LEARNING_RATE=1e-3
+LEARNING_RATE=1e-2
 TRACK_VARS = False
 
 def fc_layer(input_, num_neurons, activation=tf.nn.relu, name="fc"):
@@ -41,7 +41,7 @@ class NNBody:
         self.sess = sess
         self.n = n
         scope_name = "NNBody"
-        with tf.device('/gpu:0'):
+        with tf.device('/cpu:0'):
             with tf.variable_scope(scope_name):
                 with tf.variable_scope("data_pipeline"):
                     data_pairs  = training_data
@@ -86,12 +86,11 @@ class NNBody:
             num_inputs = self.n*2*2 + 1 # {P, V} (In R^2), Time
             num_outputs = self.n*2*2 # {P, V} (in R^2)
 
-            head = fc_layer(inputs, 800)
-            head = fc_layer(head, 400)
-            head = fc_layer(head, 400)
-            head = fc_layer(head, 300)
-            head = fc_layer(head, 300)
-            head = fc_layer(head, num_outputs, activation=tf.identity)
+            head = fc_layer(inputs, 400)
+            head = fc_layer(inputs, 300)
+            head = fc_layer(inputs, 300)
+            head = fc_layer(inputs, 300)
+            head = fc_layer(inputs, num_outputs, activation=tf.identity)
             
             return head
 
