@@ -13,7 +13,7 @@ from simulation import nbody, RK4
 from nnbody import NNBody
 
 BATCH_SIZE=64
-BOOTSTRAP_SIZE=5000
+BOOTSTRAP_SIZE=40000
 H = 0.01 # RK4 step size
 TMAX = 0.2 # Time max
 
@@ -72,12 +72,12 @@ def build_data_queue(n, bootstrap_size, batch_size):
 
 	return data_queue, (tpv0, pvfinal, enqueue), dequeue
 
-def build_data_generator(sess, n):
+def build_data_generator(sess, n, device='/gpu:1'):
 	"""
 	A method for generating data given a threading coordinator.
 	"""
 
-	with tf.device('/gpu:1'):
+	with tf.device(device):
 		with tf.variable_scope("data_generator"):
 				with tf.variable_scope("RK4"):
 
