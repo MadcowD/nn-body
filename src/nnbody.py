@@ -4,7 +4,7 @@ nnbody.py -- The main model definition for the nnbody solver,.
 import tensorflow as tf
 import os
 import math
-LEARNING_RATE=1e-2
+LEARNING_RATE=1e-3
 TRACK_VARS = False
 
 def fc_layer(input_, num_neurons, activation=tf.nn.relu, name="fc"):
@@ -61,6 +61,7 @@ class NNBody:
                 
                 self.output = self.create_model(inputs)
                 self.training_op = self.create_training_method(self.output, desireds)
+                self.get_queue_size = data_queue.size()
 
                 with tf.variable_scope("requeue"):
                     self.requeue_op = data_queue.enqueue_many(training_data)
@@ -85,11 +86,14 @@ class NNBody:
         tm = os.path.join(model_path, "model.cpkt")
         self.saver.save(self.sess, tm )
 
-    def get_training_ops(self):
+    def get_training_ops(self, should_enqueue):
         """
         Gets the training operations
         """
-        return [[self.training_op, self.requeue_op]], self.loss
+        ops = [self.training_op]
+        if should_enqueue:
+            ops += [self.requeue_op]
+        return [ops], self.loss
 
 
     def create_model(self, inputs):
@@ -100,11 +104,12 @@ class NNBody:
             num_inputs = self.n*2*2 + 1 # {P, V} (In R^2), Time
             num_outputs = self.n*2*2 # {P, V} (in R^2)
 
-            head = fc_layer(inputs, 400)
-            head = fc_layer(inputs, 300)
-            head = fc_layer(inputs, 300)
-            head = fc_layer(inputs, 300)
-            head = fc_layer(inputs, num_outputs, activation=tf.identity)
+            head = fc_layer(inputs, 700)
+            head = fc_layer(head, 400)
+            head = fc_layer(head, 400)
+            head = fc_layer(head, 300)
+            head = fc_layer(head, 300)
+            head = fc_layer(head, num_outputs, activation=tf.identity)
             
             return head
 
@@ -121,7 +126,7 @@ class NNBody:
             loss = tf.reduce_mean(tf.nn.l2_loss(diff)) 
             # todo add l2 loss
             self.loss = loss
-            variable_summaries(loss)
+            variable_summaries(loss, "loss")
             return tf.train.AdamOptimizer(LEARNING_RATE).minimize(loss)
 
 

@@ -13,8 +13,8 @@ import os
 from simulation import nbody, RK4
 from nnbody import NNBody
 
-BATCH_SIZE=64
-BOOTSTRAP_SIZE=40000
+BATCH_SIZE=128
+BOOTSTRAP_SIZE=150000
 H = 0.01 # RK4 step size
 TMAX = 0.2 # Time max
 
@@ -66,7 +66,7 @@ def build_data_queue(n, bootstrap_size, batch_size):
     with tf.device('/cpu:0'):
         with tf.variable_scope("data_pipeline"):
             data_queue = tf.RandomShuffleQueue(
-                capacity=1e6,
+                capacity=1e7,
                 min_after_dequeue=bootstrap_size,
                 dtypes=[tf.float32, tf.float32],
                 shapes=([n*2*2 +1], [n*2*2]))
@@ -107,7 +107,7 @@ def run_data_generator(sess,  coord, rk4in, rk4out, data_feed, n):
     """
     (PV, M, G), (tint, pv), (tpv0, pvfinal, enqueue ) = rk4in, rk4out, data_feed
     # Fix the mass from the beginning of training.
-    mass = np.random.random(n)*10000
+    mass = np.load("mass.npy")[:n]
     while not coord.should_stop():
         # Draw random inital conditions
         # Position can be in the unit hypercube, velocity always has initial value zero.
@@ -136,19 +136,19 @@ def train(sess, coord, max_iters, model, model_path):
     """
     Trains the model untill error is low enough.
     """
-    tboard_dir = os.path.join(model_path, 'logs'/)
+    tboard_dir = os.path.join(model_path, 'logs')
     ensure_dir(tboard_dir)
     train_writer = tf.summary.FileWriter(tboard_dir,sess.graph)
-    for it in range(max_iters):
+    for it in range(max_iters +1):
         if coord.should_stop():
             break
 
-        # Train the model.
-        training_ops, loss = model.get_training_ops(), model.loss
+        # Train the model. 
+        training_ops, loss = model.get_training_ops(sess.run(model.get_queue_size) < 1e7- 5e6 ), model.loss
         _, summaries, computed_loss = sess.run(
             [training_ops, model.merged, loss])
 
-        train_writer.add_summary(summary, it)
+        train_writer.add_summary(summaries, it)
 
         if it% 100 == 0: print(it, computed_loss)
         if it % 10000 == 0:
@@ -163,6 +163,7 @@ def main(opts):
     # Set up tensorflow session
     config = tf.ConfigProto(allow_soft_placement = True)
     sess = tf.InteractiveSession(config = config)
+    
 
     print("Hi!")
     ensure_dir(opts.model_path)
