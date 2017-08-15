@@ -73,7 +73,7 @@
 \usetikzlibrary{calc}
 \usepackage{soul}
 \usepackage{stackrel}
-
+\usepackage{wrapfig}
 \usepackage{relsize}
 
 \tikzset{fontscale/.style = {font=\relsize{#1}}
@@ -202,7 +202,7 @@
 \maketitle
 
 \begin{abstract} 
-The $n$-body problem, although simple in its formulation, is one of the most classic and unsolved problems in Newtonian mechanics. In this paper, we work towards a deeper understanding of the underlying dynamics of solutions by utilizing neural networks to approximate target states from initial conditions. Unlike previous numerical methods, neural networks are universal approximators which can capture and learn dynamics across variable timescales, without solving for intermediate solutions. We take advantage of one-shot prediction in order to analyze eigen-states \textbf{TODO: Finish abstract}
+The $n$-body problem, although simple in its formulation, is one of the most classic and unsolved problems in Newtonian mechanics. In this paper, we work towards a deeper understanding of the underlying dynamics of solutions by utilizing neural networks to approximate target states from initial conditions. Unlike previous numerical methods, neural networks are universal approximators which can capture and learn dynamics across variable timescales, without solving for intermediate solutions. 
 \end{abstract} 
 
 
@@ -275,28 +275,41 @@ for some \emph{learning rate}, $\lambda \in \mathbb{R}.$
  In the context of neural networks, we need only compute $\partial \scriptl/\partial W$ and $\partial \scriptl/\partial \theta$ to move towards local optima. It's important to note that  there are no guarentees that \eqref{eq:gradientdescent} will converge to the global optima unless the function being optimized is \emph{g-convex} (geodesically convex). Despite this, the field of deep learning can attribute much if not all of its recent success to the empircal efficacy of \eqref{eq:gradientdescent} in training different neural networks, and therefore we shall assume convergence properties. 
 
  \subsection{NN-body Architecture}
-To approximate solutions to \eqref{eq:nbodyvec}, we will choose a subset of $\scriptn_\ell$ over which to perform the optimization given in \eqref{eq:learning}. In deep learning, selection of different subsets of the foregoing hypothesis class, called architecutres, can have a significant impact on the accuracy of the models learned via gradient descent.
-
-
-\textbf{TODO: Discuss architecture.}
+To approximate solutions to \eqref{eq:nbodyvec}, we will choose a subset of $\scriptn_\ell$ over which to perform the optimization given in \eqref{eq:learning}. In deep learning, selection of different subsets of the foregoing hypothesis class, called architecutres, can have a significant impact on the accuracy of the models learned via gradient descent. The architecture of the neural network choses is as follows. The first layer has $700$ neurons, followed by two $400$ neuron layers, followed by two $300$ neuron layers, and then the output layer. Every layer uses $\sigma = \tanh$ as an activation funciton. The network is trained using the Adam Optimzier with a learning rate of 1e-3. Some networks with residual layers were considered, but those networks did not yield convergence.
 
  \section{Results}
 With the learning problem defined, we now pose several questions as to approximation of the $n$-body problem via neural networks.
 
- First, is it possible to build some nueral network such that the loss on predictions of solutions far in the future is low and yet the computational complexity of the algorithm subsumes standard solvers in performance? In other words, is it possible to learn one-shot prediction of solutions $t$-timesteps in the future with subquadratic complexity? Second, using the methods described in section \ref{sec:dl}, what insights arise from analysis of eigenstates in these learned models, and how well do these eigenstates coorespond with true eigenstates of the $n$-body problem?
+ First, is it possible to build some nueral network such that the loss on predictions of solutions far in the future is low and yet the computational complexity of the algorithm subsumes standard solvers in performance? In other words, is it possible to learn \emph{one-shot}\footnote{One-shot prediction means that the neural network will directly output the position and velocities of the $n$-bodies given some desired future time step $t$, \emph{without} calculating the intermediate steps.} prediction of solutions $t$-timesteps in the future with subquadratic complexity? Second, using the methods described in section \ref{sec:dl}, what insights arise from analysis of eigenstates in these learned models, and how well do these eigenstates coorespond with true eigenstates of the $n$-body problem?
 
  \textbf{One-Shot Prediction.} In the first experiment, we train the NN-body architecture using gradient descent against data sampled from $\pi.$ We then measure performance by comparing the average loss of the neural network against the RK4 solutions to \eqref{eq:nbodyvec} on random initial conditions $(P_0, V_0, T_0),$ called a \emph{test set}, never shown to the neural network. Furthermore, we restrict the test set to particular timesteps and consider the performance degredation of the algorithm as $T_0 \to \infty.$ 
 
  Specifically, we train the neural network by drawing samples of $x_0 := (P_0, V_0, T_0)$ from a jointly uniformly random distribution. The samples are then solved by an RK4 solver applied to \eqref{eq:nbodyvec} implemented on a first GPU, and then the list of time-steps $\Gamma(x_0) = \{(P_\tau, V_\tau, h\tau)\}_{t=1}^{T_0/h}$, where $h$ is the stepsize for RK4, is then consolidated into initial-final pairs; that is, we let $B(x_0) := \{x_0\} \times \Gamma(x_0)$ where $\times$ is the cartesian product. The product $B(x_0)$ now consists of input and desired output pairs for which we will minimize $\scriptl(N(x), y)$ when $(x,y) \in B(x_0)$. We repeat this data generation and processing step untill the neural network $N$, trained on a second GPU, reaches sufficiently low error.
 
- \textbf{TODO: Discuss results.}
 
+\begin{wrapfigure}{r}{0.5\textwidth}
+\vspace{-21pt}
+  \begin{center}
+    \includegraphics[width=0.5\textwidth]{renormalized.png}
+  \end{center}
+  \label{fig:renormal}
+  \caption{Left: A plot of loss \eqref{eq:learning} as gradient descent is applied to $\scriptn_\ell$ for various different $n$.}
+  \vspace{25pt}
+\end{wrapfigure}
 
- \textbf{Eigenstate Analysis. }
+ As seen in Figure \ref{fig:renormal}, the rate of convergence (learning) to a local optima decreases as the number of bodies increase. This namely is because as $n$ increases, the non-linearity of the system so too explodes. In Figure \ref{fig:renormal}, we normalize each error rate to the number of bodies to show how on average each body diverges from the ground-truth in position and velocity. Although there is a clear degredation in performance, the error rates observed are still sufficient to  perfrom one-shot prediction.
 
-\section{Conclusion}
+\begin{figure}
+	\begin{center}
+		\includegraphics[width=0.47\textwidth]{download.png}
+		\includegraphics[width=0.49\textwidth]{predicted.png}
+	\end{center}
+	\caption{Left: The loss between ground truth solution to the $n=3$-body problem and that predicted by the best neural network. Right: The predicted trajectory
+	of the $n$-body problem at $t=0.7s$ for one-shot and iterative, red and black respectively.}
+\end{figure}
+ Next, and most importantly, Figure 3 shows the relationship between error (on the test-set) for one-shot prediction as time increases. As expected, an increase in both time and number of bodies indicates and increased uncertainty in the system. Although the uncertainty should naturally arise as a result of the zero probability density, ergodicity of $n$-body problem, it remains to ascertain whether or one-shot prediction with the learned neural network leads to less uncertainty than the iterative approach. To determine the foregoing comparison, we visually compare the trajectories generated by varying the time input $T_0$ to the neural network and those generated by iteratively by the neural network. Demonstrated by Figure 3 (Right), and the one-shot algorithm predicts the target position correctly without error propagation.
 
-
+ \textbf{Eigenstate Analysis. } With the NN-body learned, and one-shot prediciton sufficient to a given time, we now attempt to generate states which satisfy $N(x, t_{period}) = \lambda x$; that is, we analyze the states for which $N$ predicts a scalar cyclicity. For $\lambda =1,$ these states are surely period $t_{period}$ fixed points of $N$. By drawing initial $x:=(P_0, V_0)$ pairs, fixing $T_0:=t_{period}$, and performing gradient descent on $\scriptl(N(x,t), x)$ with respect to $x$, we yield some sample fixed points. Although time-limits placed on the project prevented further analysis, such an approach for determining fixed-points of dynamical systems other than the $n$-body system seems wrought with potential.
 % \input{sections/introduction}
 % \input{sections/background}
 % \input{sections/deep_funk_machines}
@@ -308,5 +321,17 @@ With the learning problem defined, we now pose several questions as to approxima
 % \bibliography{dfm}
 % \newpage
 % \input{sections/appendix}
+
+
+\newpage
+\section{Appendix}
+
+\begin{figure}[H]
+\begin{center}
+	\caption{The neural network architecture of NNBody as displayed by tensorboard. Each $fc$ layer is a weight matrix multiply followed by a non-linearity.}
+	\includegraphics[width=0.58\textwidth]{lol.png}
+\end{center}
+
+\end{figure}
 
 \end{document}
